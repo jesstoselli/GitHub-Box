@@ -5,14 +5,36 @@ interface FormProps {
   hasError: boolean;
 }
 
-export const Title = styled.h1`
-  font-size: 48px;
-  font-weight: bold;
-  color: #3a3a3a;
-  max-width: 450px;
-  line-height: 56px;
+export const Container = styled.main`
+  position: relative;
+`;
 
-  margin-top: 80px;
+export const SearchHistory = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 0;
+
+  width: 8rem;
+  height: 5rem;
+
+  transition: transform 0.2s;
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: right;
+    line-height: 26px;
+
+    text-decoration: none;
+    color: #3a3a3a;
+    background-color: none;
+    border-radius: 8px;
+  }
+  &:hover {
+    transform: translateX(-10px);
+  }
 `;
 
 export const Form = styled.form<FormProps>`
@@ -63,7 +85,7 @@ export const Error = styled.span`
   margin-top: 8px;
 `;
 
-export const Repositories = styled.div`
+export const Devs = styled.div`
   margin-top: 80px;
   max-width: 700px;
 
