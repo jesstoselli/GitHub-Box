@@ -9,6 +9,8 @@
 
 This web app allows techrecruiters to look up for devs through GitHub API and check their profile and repositories.
 
+Check the running app @[GitHub Box](https://desafio-front-end-mestres-da-web.vercel.app/)
+
 ## Table of Contents
 
 - [DeployedApp](#deploydapp)
@@ -19,8 +21,10 @@ This web app allows techrecruiters to look up for devs through GitHub API and ch
 # Screenshots
 
 Click to expand.<br>
-<img src="https://raw.githubusercontent.com/jesstoselli/NLW-3-happy-web/master/screenshots/landing.png" width="49%"/>
-<img src="https://raw.githubusercontent.com/jesstoselli/NLW-3-happy-web/master/screenshots/map.png" width="49%"/>
+<img src="https://github.com/jesstoselli/Desafio-Front-End---Mestres-da-Web/blob/master/screenshots/screenshot1.png" width="49%"/>
+<img src="https://github.com/jesstoselli/Desafio-Front-End---Mestres-da-Web/blob/master/screenshots/screenshot2.png" width="49%"/>
+<img src="https://github.com/jesstoselli/Desafio-Front-End---Mestres-da-Web/blob/master/screenshots/screenshot3.png" width="49%"/>
+<img src="https://github.com/jesstoselli/Desafio-Front-End---Mestres-da-Web/blob/master/screenshots/screenshot4.png" width="49%"/>
 
 ## Available Scripts
 
