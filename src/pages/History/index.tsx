@@ -1,71 +1,38 @@
-import React, { useState } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import React from "react";
+import { useSelector } from "react-redux";
 
-import Header from "../../components/Header";
+// Interfaces
+// import IDev from "../../dtos/IDev";
+import { AppState } from "../../dtos/AppState";
+import IDev from "../../dtos/IDev";
 
-import { Container, GoBack, Devs } from "./styles";
+// Components
+import TitleHeader from "../../components/TitleHeader";
+import DevCard from "../../components/DevCard";
 
-interface DevInfo {
-  html_url: string;
-  description: string;
-  language: string;
-  stargazers_count: number;
-  watchers_count: number;
-  forks: number;
-}
-
-interface Dev {
-  id: number;
-  full_name: string;
-  description: string;
-  avatar_url: string;
-  login: string;
-  url: string;
-  repos: DevInfo[];
-  location?: string;
-  bio?: string;
-  twitter_username?: string;
-}
+import { Container, Devs } from "./styles";
 
 const History: React.FC = () => {
-  const [searchHistory, setSearchHistory] = useState<Dev[]>(() => {
-    const storagedSearches = localStorage.getItem(
-      "@GithubExplorer:search-history"
-    );
-
-    if (storagedSearches) {
-      return JSON.parse(storagedSearches);
-    }
-
-    return [];
-  });
+  const searchedDevs = useSelector<AppState, IDev[]>(
+    (state) => state.searches.searchedDevs
+  );
 
   return (
     <Container>
-      <Header title='Histórico de consultas.' />
-      <GoBack>
-        <Link to='/'>
-          <FiChevronLeft size={16} />
-          Voltar
-        </Link>
-      </GoBack>
+      <TitleHeader title='Histórico de buscas' goBack={true} />
 
       <Devs>
-        {searchHistory.length !== 0 &&
-          searchHistory.map((search) => {
-            return (
-              <Link key={search.id} to={`/devs/${search.login}`}>
-                <img src={search.avatar_url} alt={search.login} />
-                <div>
-                  <strong>{search.full_name}</strong>
-                  <p>{search.bio}</p>
-                </div>
-                <FiChevronRight size={20} />
-              </Link>
-            );
+        {searchedDevs &&
+          searchedDevs.map((search) => {
+            return <DevCard key={search.id} devData={search} />;
           })}
       </Devs>
+      {/* <Devs>
+        {searchHistory.length !== 0 &&
+          searchHistory.map((search) => {
+            return <DevCard key={search.id} devData={search} />;
+          })}
+      </Devs> */}
     </Container>
   );
 };

@@ -1,46 +1,40 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useRouteMatch, Link, useHistory } from "react-router-dom";
-import { FiChevronLeft } from "react-icons/fi";
+import React, { useEffect, useCallback, useState } from "react";
+import { useRouteMatch } from "react-router-dom";
+import { HiOutlineHeart, HiHeart } from "react-icons/hi";
+import { useDispatch, useSelector } from "react-redux";
 import api from "../../services/api";
 
-import Repos from "../Repos";
-import logoImg from "../../assets/logo.svg";
+// Interfaces
+import IDev from "../../dtos/IDev";
 
-import { Header, DevGitHubInfo, PersonalInfo } from "./styles";
+// Actions
+import { addSearch } from "../../store/actions/searchesActions";
+import {
+  addFavoriteDev,
+  removeFavoriteDev,
+} from "../../store/actions/favoriteActions";
+
+// Components
+import TitleHeader from "../../components/TitleHeader";
+import Repos from "../Repos";
+
+import { DevGitHubInfo, PersonalInfo } from "./styles";
+import { AppState } from "../../dtos/AppState";
 
 interface DevParams {
   login: string;
 }
 
-interface DevInfo {
-  html_url: string;
-  description: string;
-  language: string;
-  stargazers_count: number;
-  watchers_count: number;
-  forks: number;
-}
-
-interface Dev {
-  id: number;
-  full_name: string;
-  description: string;
-  avatar_url: string;
-  login: string;
-  url: string;
-  repos: DevInfo;
-  location?: string;
-  bio?: string;
-  email?: string;
-  twitter_username?: string;
-}
-
 const Dev: React.FC = () => {
-  const [repository, setRepository] = useState<Dev | null>(null);
+  const dispatch = useDispatch();
+  const favoriteDevs = useSelector<AppState, IDev[]>(
+    (state) => state.favorites.favoriteDevs
+  );
+
+  const [repository, setRepository] = useState<IDev | null>(null);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   const { params } = useRouteMatch<DevParams>();
-
-  const history = useHistory();
 
   useEffect(() => {
     api.get(`/users/${params.login}`).then((response) => {
@@ -49,26 +43,36 @@ const Dev: React.FC = () => {
         full_name: response.data.name,
       };
 
-      console.log(response.data);
+      const isDevAlreadySaved = favoriteDevs.some(
+        (dev) => dev.id === devToAdd.id
+      );
+
+      setIsFavorited(isDevAlreadySaved);
       setRepository(devToAdd);
     });
-  }, [params, params.login]);
+  }, [params, params.login, favoriteDevs]);
 
-  const handleGoBack = useCallback(() => {
-    history.goBack();
-  }, [history]);
+  useEffect(() => {
+    if (repository) {
+      dispatch(addSearch(repository));
+    }
+  }, [dispatch, repository]);
+
+  const handleFavoriting = useCallback(() => {
+    if (repository) {
+      if (!isFavorited) {
+        setIsFavorited(true);
+        dispatch(addFavoriteDev(repository));
+      } else if (isFavorited) {
+        setIsFavorited(false);
+        dispatch(removeFavoriteDev(repository));
+      }
+    }
+  }, [repository, dispatch, isFavorited]);
 
   return (
     <>
-      <Header>
-        <Link to='/'>
-          <img src={logoImg} alt='Github Explorer' />
-        </Link>
-        <button type='button' onClick={handleGoBack}>
-          <FiChevronLeft size={16} />
-          Voltar
-        </button>
-      </Header>
+      <TitleHeader title='' goBack={true} />
 
       {repository && (
         <DevGitHubInfo>
@@ -81,33 +85,48 @@ const Dev: React.FC = () => {
           </header>
 
           <PersonalInfo>
-            <p>
-              Email:
-              {repository.email ? (
-                <strong>{repository.email}</strong>
+            <button type='button' onClick={handleFavoriting}>
+              {isFavorited ? (
+                <>
+                  <HiHeart size={30} />
+                  <p>Desfavoritar</p>
+                </>
               ) : (
-                <strong>Email não disponível.</strong>
+                <>
+                  <HiOutlineHeart size={30} />
+                  <p>Favoritar</p>
+                </>
               )}
-            </p>
-            <p>
-              Location: <strong>{repository.location}</strong>
-            </p>
-            <p>
-              Twitter:
-              {repository.twitter_username ? (
-                <strong>
-                  <a
-                    href={`https://twitter.com/${repository.twitter_username}`}
-                    rel='noopener noreferrer'
-                    target='_blank'
-                  >
-                    @{repository.twitter_username}
-                  </a>
-                </strong>
-              ) : (
-                <strong>Twitter não disponível.</strong>
-              )}
-            </p>
+            </button>
+            <div>
+              <p>
+                Email:
+                {repository.email ? (
+                  <strong>{repository.email}</strong>
+                ) : (
+                  <strong>Email não disponível.</strong>
+                )}
+              </p>
+              <p>
+                Location: <strong>{repository.location}</strong>
+              </p>
+              <p>
+                Twitter:
+                {repository.twitter_username ? (
+                  <strong>
+                    <a
+                      href={`https://twitter.com/${repository.twitter_username}`}
+                      rel='noopener noreferrer'
+                      target='_blank'
+                    >
+                      @{repository.twitter_username}
+                    </a>
+                  </strong>
+                ) : (
+                  <strong>Twitter não disponível.</strong>
+                )}
+              </p>
+            </div>
           </PersonalInfo>
         </DevGitHubInfo>
       )}

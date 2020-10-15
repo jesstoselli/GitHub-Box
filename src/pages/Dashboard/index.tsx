@@ -1,37 +1,23 @@
-import React, { useState, useEffect, FormEvent, useCallback } from "react";
-import { FiBox, FiChevronRight } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import React, { useState, FormEvent, useCallback } from "react";
+import { useDispatch } from "react-redux";
+
+// Interfaces
+import IDev from "../../dtos/IDev";
+
 import api from "../../services/api";
 
 import validateEmail from "../../helpers/validateEmail";
 
-import { Container, SearchHistory, Form, Devs, Error } from "./styles";
-import Header from "../../components/Header";
+// Components
+import TitleHeader from "../../components/TitleHeader";
+import DevCard from "../../components/DevCard";
+import Spinner from "../../components/Spinner";
+
+import { Container, Form, Devs, Error } from "./styles";
+import { addLastSearch } from "../../store/actions/lastSearchActions";
 
 interface DevItems {
-  items: Dev[];
-}
-
-interface DevInfo {
-  html_url: string;
-  description: string;
-  language: string;
-  stargazers_count: number;
-  watchers_count: number;
-  forks: number;
-}
-
-interface Dev {
-  id: number;
-  full_name: string;
-  description: string;
-  avatar_url: string;
-  login: string;
-  url: string;
-  repos: DevInfo[];
-  location?: string;
-  bio?: string;
-  twitter_username?: string;
+  items: IDev[];
 }
 
 interface UserInfo {
@@ -42,121 +28,74 @@ interface UserInfo {
 }
 
 const Dashboard: React.FC = () => {
+  const dispatch = useDispatch();
+
+  const [isLoading, setIsLoading] = useState(false);
   const [newDev, setNewDev] = useState("");
   const [inputError, setInputError] = useState("");
-  const [devs, setDevs] = useState<Dev[]>();
-  const [currentId, setCurrentId] = useState<number>();
+  const [devs, setDevs] = useState<IDev[]>(() => {
+    const storagedSearch = localStorage.getItem("@GithubBox:lastSearch");
 
-  const [searchHistory, setSearchHistory] = useState<Dev[]>(() => {
-    const storagedSearches = localStorage.getItem(
-      "@GithubExplorer:search-history"
-    );
-
-    if (storagedSearches) {
-      return JSON.parse(storagedSearches);
+    if (storagedSearch) {
+      return JSON.parse(storagedSearch);
     }
     return [];
   });
 
-  const saveSearchHistory = useCallback(
-    (id: number) => {
-      const devToSave = devs?.find((dev) => dev.id === id);
+  const handleAddDev = useCallback(
+    async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+      event.preventDefault();
 
-      console.log(devToSave);
+      if (!newDev) {
+        setInputError("Digite nome ou email para pesquisar.");
+        return;
+      }
 
-      if (devToSave) {
-        console.log("inside devtosave");
-        const storagedSearches = localStorage.getItem(
-          "@GithubExplorer:search-history"
+      setIsLoading(true);
+
+      try {
+        let devsToAdd: IDev[] = [];
+
+        const response = await api.get<DevItems>(
+          `search/users?q=${newDev}+in:${
+            validateEmail(newDev) ? "email" : "name"
+          }`
         );
 
-        let oldSearches: Dev[] = [];
-        if (storagedSearches) {
-          oldSearches = JSON.parse(storagedSearches);
+        await Promise.all(
+          response.data.items.map(async (item) => {
+            const response2 = await api.get<UserInfo>(item.url);
 
-          const isDevAlreadySaved = oldSearches.some((dev) => dev.id === id);
+            const devToAdd = {
+              ...item,
+              full_name: response2.data.name,
+              bio: response2.data.bio,
+            };
 
-          if (isDevAlreadySaved) {
-            return;
-          } else {
-            return setSearchHistory([...oldSearches, devToSave]);
-          }
-        } else {
-          console.log("não existia nenhum salvo");
-          return setSearchHistory([devToSave]);
-        }
+            return devsToAdd.push(devToAdd);
+          })
+        );
+
+        setDevs(devsToAdd);
+        dispatch(addLastSearch(devsToAdd));
+
+        setNewDev("");
+        setInputError("");
+
+        setIsLoading(false);
+      } catch (err) {
+        setInputError("Erro na busca.");
       }
     },
-    [devs]
+    [newDev, dispatch]
   );
-
-  useEffect(() => {
-    localStorage.setItem(
-      "@GithubExplorer:search-history",
-      JSON.stringify(searchHistory)
-    );
-  }, [searchHistory]);
-
-  useEffect(() => {
-    if (currentId) {
-      saveSearchHistory(currentId);
-    }
-  }, [currentId, saveSearchHistory]);
-
-  async function handleAddDev(
-    event: FormEvent<HTMLFormElement>
-  ): Promise<void> {
-    event.preventDefault();
-
-    if (!newDev) {
-      setInputError("Digite nome ou email para pesquisar.");
-      return;
-    }
-
-    try {
-      let devsToAdd: Dev[] = [];
-
-      const response = await api.get<DevItems>(
-        `search/users?q=${newDev}+in:${
-          validateEmail(newDev) ? "email" : "name"
-        }`
-      );
-
-      await Promise.all(
-        response.data.items.map(async (item) => {
-          const response2 = await api.get<UserInfo>(item.url);
-
-          const devToAdd = {
-            ...item,
-            full_name: response2.data.name,
-            bio: response2.data.bio,
-          };
-
-          console.log(devToAdd);
-
-          return devsToAdd.push(devToAdd);
-        })
-      );
-
-      setDevs(devsToAdd);
-
-      setNewDev("");
-      setInputError("");
-    } catch (err) {
-      setInputError("Erro na busca.");
-    }
-  }
 
   return (
     <Container>
-      <Header title='Explore repositórios no Github e encontre seu dev ideal.' />
-
-      <SearchHistory>
-        <Link to='/search-history'>
-          <FiBox size={50} />
-          <span>Histórico de Consultas</span>
-        </Link>
-      </SearchHistory>
+      <TitleHeader
+        title='Explore repositórios no Github e encontre seu dev ideal.'
+        goBack={false}
+      />
 
       <Form hasError={!!inputError} onSubmit={handleAddDev}>
         <input
@@ -169,25 +108,13 @@ const Dashboard: React.FC = () => {
 
       {inputError && <Error>{inputError}</Error>}
 
-      <Devs>
-        {devs &&
-          devs.map((dev) => (
-            <Link
-              key={dev.id}
-              to={`/devs/${dev.login}`}
-              onClick={(e) => {
-                setCurrentId(dev.id);
-              }}
-            >
-              <img src={dev.avatar_url} alt={dev.login} />
-              <div>
-                <strong>{dev.full_name}</strong>
-                <p>{dev.bio ?? "Bio não disponível."}</p>
-              </div>
-              <FiChevronRight size={20} />
-            </Link>
-          ))}
-      </Devs>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <Devs>
+          {devs && devs.map((dev) => <DevCard key={dev.id} devData={dev} />)}
+        </Devs>
+      )}
     </Container>
   );
 };
