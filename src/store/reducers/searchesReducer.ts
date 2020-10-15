@@ -20,6 +20,15 @@ const searchesReducer = (
   switch (action.type) {
     case "ADD_SEARCH":
       saveToLocalStorage(action.payload, "search-history");
+
+      const checkIfUserIsAlreadyInState = state.searchedDevs.some(
+        (dev) => dev.id === action.payload.id
+      );
+
+      if (checkIfUserIsAlreadyInState) {
+        return state;
+      }
+
       return {
         ...state,
         searchedDevs: [...state.searchedDevs, action.payload],

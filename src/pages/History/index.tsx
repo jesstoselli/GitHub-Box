@@ -2,7 +2,6 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 // Interfaces
-// import IDev from "../../dtos/IDev";
 import { AppState } from "../../dtos/AppState";
 import IDev from "../../dtos/IDev";
 
@@ -23,16 +22,10 @@ const History: React.FC = () => {
 
       <Devs>
         {searchedDevs &&
-          searchedDevs.map((search) => {
-            return <DevCard key={search.id} devData={search} />;
-          })}
+          searchedDevs.map((search) => (
+            <DevCard key={search.id} devData={search} />
+          ))}
       </Devs>
-      {/* <Devs>
-        {searchHistory.length !== 0 &&
-          searchHistory.map((search) => {
-            return <DevCard key={search.id} devData={search} />;
-          })}
-      </Devs> */}
     </Container>
   );
 };

@@ -3,7 +3,7 @@ import { FiBox } from "react-icons/fi";
 import { HiOutlineHeart } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
-import logoImg from "../../assets/logo.svg";
+import logoImg from "../../assets/logo_pt.svg";
 
 import { Container, Content, Menu } from "./styles";
 
