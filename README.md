@@ -1,4 +1,26 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# GitHub Box - Um Atalho para Techrecruiters
+
+[![react](https://img.shields.io/badge/reactjs-16.13.1-61dafb?style=flat-square&logo=react)](https://reactjs.org/)
+[![react-redux](https://img.shields.io/badge/redux-7.2.1-61dafb?style=flat-square&logo=react)](https://react-redux.js.org/)
+[![styled-components](https://img.shields.io/badge/styled_components-5.2.0-db7b86?style=flat-square&logo=styled-components)](https://styled-components.com/)
+[![eslint](https://img.shields.io/badge/eslint-6.8.0-4b32c3?style=flat-square&logo=eslint)](https://eslint.org/)
+[![airbnb-style](https://flat.badgen.net/badge/style-guide/airbnb/ff5a5f?icon=airbnb)](https://github.com/airbnb/javascript)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)<br>
+
+This web app allows techrecruiters to look up for devs through GitHub API and check their profile and repositories.
+
+## Table of Contents
+
+- [DeployedApp](#deploydapp)
+- [Screenshots](#screenshots)
+- [Installing](#installing)
+- [Usage](#usage)
+
+# Screenshots
+
+Click to expand.<br>
+<img src="https://raw.githubusercontent.com/jesstoselli/NLW-3-happy-web/master/screenshots/landing.png" width="49%"/>
+<img src="https://raw.githubusercontent.com/jesstoselli/NLW-3-happy-web/master/screenshots/map.png" width="49%"/>
 
 ## Available Scripts
 
